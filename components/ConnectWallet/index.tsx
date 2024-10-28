@@ -3,12 +3,13 @@ import { MiniKit, ResponseEvent } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 
 export const ConnectWalletBlock = () => {
-  var nonce: string = "";
+  const [address, setAddress] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [nonce, setNonce] = useState<string>("");
 
   const signInWithWallet = async () => {
     const res = await fetch(`/api/nonce`);
-    nonce = (await res.json()).nonce;
+    setNonce((await res.json()).nonce);
 
     MiniKit.commands.walletAuth({
       nonce: nonce,
@@ -53,6 +54,7 @@ export const ConnectWalletBlock = () => {
           }),
         });
 
+        setAddress(payload.address);
         setUsername((await getUsername(payload.address)).username);
       }
     });
@@ -64,11 +66,11 @@ export const ConnectWalletBlock = () => {
 
   return (
     <>
-      {MiniKit.walletAddress ? (
+      {address ? (
         <div>
           <h1>Verify Block</h1>
           <button className="bg-green-500 p-4">
-            {username ?? MiniKit.walletAddress}
+            {username ?? address}
           </button>
         </div>
       ) : (
