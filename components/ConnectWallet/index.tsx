@@ -10,7 +10,7 @@ export const ConnectWalletBlock = () => {
     setNonce((await res.json()).nonce);
 
     MiniKit.commands.walletAuth({
-      nonce: nonce,
+      nonce,
       expirationTime: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
       notBefore: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
       statement: "Connect your wallet to the MiniKit Onchain Template",
@@ -24,9 +24,10 @@ export const ConnectWalletBlock = () => {
 
     MiniKit.subscribe(ResponseEvent.MiniAppWalletAuth, async (payload) => {
       if (payload.status === "error") {
+        console.error(payload);
         return;
       } else {
-        const response = await fetch("/api/complete-siwe", {
+        const response = await fetch("/api/verify-wallet", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -36,6 +37,7 @@ export const ConnectWalletBlock = () => {
             nonce,
           }),
         });
+        console.log(await response.json());
       }
     });
 
