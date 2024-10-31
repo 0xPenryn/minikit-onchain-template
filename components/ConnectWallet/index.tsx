@@ -9,7 +9,10 @@ export const ConnectWalletBlock = () => {
     const res = await fetch(`/api/nonce`);
     const json = await res.json();
     console.log("nonce endpoint response: ", json);
-    setNonce(json.nonce as string);
+    setNonce(json.nonce);
+
+    console.log("nonce: ", nonce);
+    console.log("json.nonce: ", json.nonce);
 
     console.log("sending walletAuth command with nonce: ", nonce);
 
