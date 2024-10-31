@@ -3,8 +3,6 @@ import { MiniKit, ResponseEvent } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 
 export const ConnectWalletBlock = () => {
-  const [address, setAddress] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
   const [nonce, setNonce] = useState<string>("");
 
   const signInWithWallet = async () => {
@@ -17,21 +15,6 @@ export const ConnectWalletBlock = () => {
       notBefore: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
       statement: "Connect your wallet to the MiniKit Onchain Template",
     });
-  };
-
-  const getUsername = async (address: string) => {
-    const res = await fetch("https://usernames.worldcoin.org/api/v1/query", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        addresses: [address],
-      }),
-    });
-
-    const data = await res.json();
-    return data.usernames[0] ?? { username: null, profilePictureUrl: null };
   };
 
   useEffect(() => {
@@ -53,9 +36,6 @@ export const ConnectWalletBlock = () => {
             nonce,
           }),
         });
-
-        setAddress(payload.address);
-        setUsername((await getUsername(payload.address)).username);
       }
     });
 
@@ -66,11 +46,11 @@ export const ConnectWalletBlock = () => {
 
   return (
     <>
-      {address ? (
+      {MiniKit.user ? (
         <div>
           <h1>Verify Block</h1>
           <button className="bg-green-500 p-4">
-            {username ?? address}
+            {MiniKit.user.username ?? MiniKit.user.walletAddress}
           </button>
         </div>
       ) : (
