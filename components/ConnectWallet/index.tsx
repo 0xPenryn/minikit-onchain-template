@@ -7,17 +7,11 @@ export const ConnectWalletBlock = () => {
 
   const signInWithWallet = async () => {
     const res = await fetch(`/api/nonce`);
-    const json = await res.json();
-    console.log("nonce endpoint response: ", json);
-    setNonce(json.nonce);
-
-    console.log("nonce: ", nonce);
-    console.log("json.nonce: ", json.nonce);
-
-    console.log("sending walletAuth command with nonce: ", nonce);
+    const body = await res.json();
+    setNonce(body.nonce);
 
     MiniKit.commands.walletAuth({
-      nonce,
+      nonce: body.nonce,
       expirationTime: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
       notBefore: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
       statement: "Connect your wallet to the MiniKit Onchain Template",
