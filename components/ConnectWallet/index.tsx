@@ -7,7 +7,11 @@ export const ConnectWalletBlock = () => {
 
   const signInWithWallet = async () => {
     const res = await fetch(`/api/nonce`);
-    setNonce((await res.json()).nonce);
+    const json = await res.json();
+    console.log("nonce endpoint response: ", json);
+    setNonce(json.nonce as string);
+
+    console.log("sending walletAuth command with nonce: ", nonce);
 
     MiniKit.commands.walletAuth({
       nonce,
@@ -52,7 +56,7 @@ export const ConnectWalletBlock = () => {
         <div>
           <h1>Verify Block</h1>
           <button className="bg-green-500 p-4">
-            {MiniKit.user.username ?? MiniKit.user.walletAddress}
+            Signed in as {MiniKit.user.username ?? MiniKit.user.walletAddress}
           </button>
         </div>
       ) : (
