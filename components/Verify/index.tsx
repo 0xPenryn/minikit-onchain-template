@@ -81,7 +81,7 @@ const triggerTransaction = async (
           decodeAbiParameters(
 						parseAbiParameters('uint256[8]'),
 						response.proof as `0x${string}`
-					)[0],
+					)[0].map((value) => value.toString()),
         ],
       },
     ],
