@@ -44,10 +44,18 @@ const triggerTransaction = (
   });
 };
 
+const getTxData = async (transactionId: string) => {
+  const response = await fetch(`/api/get-tx-data`, {
+    method: "POST",
+    body: JSON.stringify({ transactionId }),
+  });
+  return response.json();
+};
+
 export const VerifyBlock = () => {
   const [worldIdProof, setWorldIdProof] =
     useState<MiniAppVerifyActionSuccessPayload | null>(null);
-  const [transactionId, setTransactionId] = useState<string>("");
+  const [transactionHash, setTransactionHash] = useState<string>("");
   const [verifyPayload, setVerifyPayload] = useState<VerifyCommandInput | null>(null);
 
   useEffect(() => {
@@ -87,8 +95,8 @@ export const VerifyBlock = () => {
         if (payload.status === "error") {
           console.error("Error sending transaction", payload);
         } else {
-          console.log("txId: ", payload.transaction_id);
-          setTransactionId(payload.transaction_id);
+          const { transactionHash } = await getTxData(payload.transaction_id);
+          setTransactionHash(transactionHash);
         }
       }
     );
@@ -106,11 +114,11 @@ export const VerifyBlock = () => {
             Verify
           </button>
         </div>
-      ) : transactionId ? (
+      ) : transactionHash ? (
         <div>
           <a
             className="bg-green-500 p-4"
-            href={`https://worldscan.org/tx/${transactionId}`}
+            href={`https://worldscan.org/tx/${transactionHash}`}
             target="_blank"
           >
             View on Worldscan
