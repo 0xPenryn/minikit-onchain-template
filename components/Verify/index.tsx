@@ -106,25 +106,23 @@ export const VerifyBlock = () => {
 
   return (
     <>
-      {/* {MiniKit.user && ( */}
-        !transactionId ? (
-          <div>
-            <button className="bg-green-500 p-4" onClick={triggerVerify}>
-              Verify & Send Transaction
-            </button>
-          </div>
-        ) : (
-          <div>
-            <a
-              className="bg-green-500 p-4"
-              href={`https://worldscan.org/tx/${transactionId}`}
-              target="_blank"
-            >
-              View on Worldscan
-            </a>
-          </div>
-        )
-      {/* )} */}
+      {!transactionId ? (
+        <div>
+          <button className="bg-green-500 p-4" onClick={triggerVerify}>
+            Verify & Send Transaction
+          </button>
+        </div>
+      ) : (
+        <div>
+          <a
+            className="bg-green-500 p-4"
+            href={`https://worldscan.org/tx/${transactionId}`}
+            target="_blank"
+          >
+            View on Worldscan
+          </a>
+        </div>
+      )}
     </>
   );
 };
