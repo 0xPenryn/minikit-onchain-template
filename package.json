@@ -3,17 +3,22 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "abi": "rm abi/ContractAbi.json && cd contracts && forge inspect Contract abi >> ../abi/ContractAbi.json",
+    "predev": "pnpm run abi",
     "dev": "next dev",
+    "prebuild": "pnpm run abi",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@worldcoin/minikit-js": "^1.2.0",
+    "@worldcoin/minikit-react": "^1.2.0",
     "eruda": "^3.2.3",
     "next": "^14.2.6",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "viem": "^2.21.38"
   },
   "devDependencies": {
     "@types/node": "^20",

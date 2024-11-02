@@ -5,8 +5,14 @@ import {
   VerificationLevel,
   MiniAppVerifyActionPayload,
   ISuccessResult,
+  MiniAppVerifyActionSuccessPayload,
+  MiniAppSendTransactionPayload,
 } from "@worldcoin/minikit-js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import abi from "../../abi/ContractAbi.json";
+import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
+import { createPublicClient, http } from "viem";
+import { worldchain } from "viem/chains";
 
 export type VerifyCommandInput = {
   action: string;
@@ -15,16 +21,45 @@ export type VerifyCommandInput = {
 };
 
 const verifyPayload: VerifyCommandInput = {
-  action: "test-action", // This is your action ID from the Developer Portal
-  signal: "",
-  verification_level: VerificationLevel.Orb, // Orb | Device
+  action: process.env.NEXT_PUBLIC_ACTION_ID as string,
+  signal: MiniKit.user?.walletAddress as string,
+  verification_level: VerificationLevel.Orb,
 };
 
 const triggerVerify = () => {
   MiniKit.commands.verify(verifyPayload);
 };
 
+const triggerTransaction = async (
+  response: MiniAppVerifyActionSuccessPayload
+) => {
+  await MiniKit.commandsAsync.sendTransaction({
+    transaction: [
+      {
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
+        abi: abi,
+        functionName: "verifyAndExecute",
+        args: [
+          MiniKit.user?.walletAddress,
+          response.merkle_root,
+          response.nullifier_hash,
+          response.proof,
+        ],
+      },
+    ],
+  });
+};
+
+const client = createPublicClient({
+  chain: worldchain,
+  transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
+});
+
 export const VerifyBlock = () => {
+  const [worldIdProof, setWorldIdProof] =
+    useState<MiniAppVerifyActionSuccessPayload | null>(null);
+  const [transactionId, setTransactionId] = useState<string>("");
+
   useEffect(() => {
     if (!MiniKit.isInstalled()) {
       return;
@@ -37,24 +72,7 @@ export const VerifyBlock = () => {
           return console.log("Error payload", response);
         }
 
-        // Verify the proof in the backend
-        const verifyResponse = await fetch("/api/verify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            payload: response as ISuccessResult, // Parses only the fields we need to verify
-            action: verifyPayload.action,
-            signal: verifyPayload.signal, // Optional
-          }),
-        });
-
-        // TODO: Handle Success!
-        const verifyResponseJson = await verifyResponse.json();
-        if (verifyResponseJson.status === 200) {
-          console.log("Verification success!");
-        }
+        setWorldIdProof(response);
       }
     );
 
@@ -63,12 +81,50 @@ export const VerifyBlock = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!MiniKit.isInstalled() || !worldIdProof) {
+      return;
+    }
+
+    triggerTransaction(worldIdProof);
+
+    MiniKit.subscribe(
+      ResponseEvent.MiniAppSendTransaction,
+      async (payload: MiniAppSendTransactionPayload) => {
+        if (payload.status === "error") {
+          console.error("Error sending transaction", payload);
+        } else {
+          setTransactionId(payload.transaction_id);
+        }
+      }
+    );
+
+    return () => {
+      MiniKit.unsubscribe(ResponseEvent.MiniAppSendTransaction);
+    };
+  }, [worldIdProof]);
+
   return (
-    <div>
-      <h1>Verify Block</h1>
-      <button className="bg-green-500 p-4" onClick={triggerVerify}>
-        Test Verify
-      </button>
-    </div>
+    <>
+      {MiniKit.user && (
+        !transactionId ? (
+          <div>
+            <button className="bg-green-500 p-4" onClick={triggerVerify}>
+              Verify & Send Transaction
+            </button>
+          </div>
+        ) : (
+          <div>
+            <a
+              className="bg-green-500 p-4"
+              href={`https://worldscan.org/tx/${transactionId}`}
+              target="_blank"
+            >
+              View on Worldscan
+            </a>
+          </div>
+        )
+      )}
+    </>
   );
 };

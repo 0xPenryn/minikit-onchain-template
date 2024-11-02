@@ -51,7 +51,6 @@ export const ConnectWalletBlock = () => {
     <>
       {MiniKit.user ? (
         <div>
-          <h1>Verify Block</h1>
           <button className="bg-green-500 p-4">
             Signed in as {MiniKit.user.username ?? MiniKit.user.walletAddress}
           </button>
