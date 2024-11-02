@@ -10,9 +10,9 @@ import {
 } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 import abi from "../../abi/ContractAbi.json";
-import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
-import { createPublicClient, http } from "viem";
-import { worldchain } from "viem/chains";
+// import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
+// import { createPublicClient, http } from "viem";
+// import { worldchain } from "viem/chains";
 
 export type VerifyCommandInput = {
   action: string;
@@ -52,10 +52,10 @@ const triggerTransaction = async (
   });
 };
 
-const client = createPublicClient({
-  chain: worldchain,
-  transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
-});
+// const client = createPublicClient({
+//   chain: worldchain,
+//   transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
+// });
 
 export const VerifyBlock = () => {
   const [worldIdProof, setWorldIdProof] =
@@ -88,7 +88,7 @@ export const VerifyBlock = () => {
       return;
     }
 
-    triggerTransaction(worldIdProof);
+    // triggerTransaction(worldIdProof);
 
     MiniKit.subscribe(
       ResponseEvent.MiniAppSendTransaction,
@@ -108,13 +108,13 @@ export const VerifyBlock = () => {
 
   return (
     <>
-      {!transactionId ? (
+      {!worldIdProof ? (
         <div>
           <button className="bg-green-500 p-4" onClick={triggerVerify}>
-            Verify & Send Transaction
+            Verify 
           </button>
         </div>
-      ) : (
+      ) : transactionId ? (
         <div>
           <a
             className="bg-green-500 p-4"
@@ -123,8 +123,14 @@ export const VerifyBlock = () => {
           >
             View on Worldscan
           </a>
-        </div>
-      )}
+          </div>
+        ) : (
+          <div>
+            <button className="bg-green-500 p-4" onClick={() => triggerTransaction}>
+              Send Transaction
+            </button>
+          </div>
+        )}
     </>
   );
 };
