@@ -139,7 +139,7 @@ export const VerifyBlock = () => {
         <div>
           <button
             className="bg-green-500 p-4"
-            onClick={() => triggerTransaction}
+            onClick={() => triggerTransaction(worldIdProof)}
           >
             Send Transaction
           </button>
