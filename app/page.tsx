@@ -3,7 +3,7 @@ import { MiniKit, ResponseEvent } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 import { VerifyBlock } from "@/components/Verify";
 
-export const ConnectWalletBlock = () => {
+const ConnectWalletBlock = () => {
   const [nonce, setNonce] = useState<string>("");
 
   const signInWithWallet = async () => {
