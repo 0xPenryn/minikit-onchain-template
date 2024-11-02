@@ -33,6 +33,8 @@ const triggerVerify = () => {
 const triggerTransaction = async (
   response: MiniAppVerifyActionSuccessPayload
 ) => {
+
+  console.log("debug: ", process.env.NEXT_PUBLIC_CONTRACT_ADDRESS, MiniKit.user?.walletAddress, response)
   await MiniKit.commandsAsync.sendTransaction({
     transaction: [
       {
