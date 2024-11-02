@@ -1,6 +1,7 @@
 "use client";
 import { MiniKit, ResponseEvent } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
+import { VerifyBlock } from "../Verify";
 
 export const ConnectWalletBlock = () => {
   const [nonce, setNonce] = useState<string>("");
@@ -50,11 +51,14 @@ export const ConnectWalletBlock = () => {
   return (
     <>
       {MiniKit.user ? (
-        <div>
-          <button className="bg-green-500 p-4">
-            Signed in as {MiniKit.user.username ?? MiniKit.user.walletAddress}
-          </button>
-        </div>
+        <>
+          <div>
+            <button className="bg-green-500 p-4">
+              Signed in as {MiniKit.user.username ?? MiniKit.user.walletAddress}
+            </button>
+          </div>
+          <VerifyBlock />
+        </>
       ) : (
         <div>
           <button className="bg-green-500 p-4" onClick={signInWithWallet}>

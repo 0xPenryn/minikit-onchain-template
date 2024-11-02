@@ -106,7 +106,7 @@ export const VerifyBlock = () => {
 
   return (
     <>
-      {MiniKit.user && (
+      {/* {MiniKit.user && ( */}
         !transactionId ? (
           <div>
             <button className="bg-green-500 p-4" onClick={triggerVerify}>
@@ -124,7 +124,7 @@ export const VerifyBlock = () => {
             </a>
           </div>
         )
-      )}
+      {/* )} */}
     </>
   );
 };
