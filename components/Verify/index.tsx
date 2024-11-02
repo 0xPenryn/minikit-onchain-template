@@ -10,9 +10,9 @@ import {
 } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 import abi from "../../abi/ContractAbi.json";
-// import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
-// import { createPublicClient, http } from "viem";
-// import { worldchain } from "viem/chains";
+import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
+import { createPublicClient, http } from "viem";
+import { worldchain } from "viem/chains";
 
 export type VerifyCommandInput = {
   action: string;
@@ -33,8 +33,12 @@ const triggerVerify = () => {
 const triggerTransaction = async (
   response: MiniAppVerifyActionSuccessPayload
 ) => {
-
-  console.log("debug: ", process.env.NEXT_PUBLIC_CONTRACT_ADDRESS, MiniKit.user?.walletAddress, response)
+  console.log(
+    "debug: ",
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+    MiniKit.user?.walletAddress,
+    response
+  );
   await MiniKit.commandsAsync.sendTransaction({
     transaction: [
       {
@@ -50,12 +54,14 @@ const triggerTransaction = async (
       },
     ],
   });
+
+  console.log("transaction sent");
 };
 
-// const client = createPublicClient({
-//   chain: worldchain,
-//   transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
-// });
+const client = createPublicClient({
+  chain: worldchain,
+  transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
+});
 
 export const VerifyBlock = () => {
   const [worldIdProof, setWorldIdProof] =
@@ -90,16 +96,21 @@ export const VerifyBlock = () => {
 
     // triggerTransaction(worldIdProof);
 
+    console.log("world id proof useEffectdebug: ", worldIdProof);
+
     MiniKit.subscribe(
       ResponseEvent.MiniAppSendTransaction,
       async (payload: MiniAppSendTransactionPayload) => {
         if (payload.status === "error") {
           console.error("Error sending transaction", payload);
         } else {
+          console.log("txId: ", payload.transaction_id);
           setTransactionId(payload.transaction_id);
         }
       }
     );
+
+    console.log("subscribed to send transaction");
 
     return () => {
       MiniKit.unsubscribe(ResponseEvent.MiniAppSendTransaction);
@@ -111,7 +122,7 @@ export const VerifyBlock = () => {
       {!worldIdProof ? (
         <div>
           <button className="bg-green-500 p-4" onClick={triggerVerify}>
-            Verify 
+            Verify
           </button>
         </div>
       ) : transactionId ? (
@@ -123,14 +134,17 @@ export const VerifyBlock = () => {
           >
             View on Worldscan
           </a>
-          </div>
-        ) : (
-          <div>
-            <button className="bg-green-500 p-4" onClick={() => triggerTransaction}>
-              Send Transaction
-            </button>
-          </div>
-        )}
+        </div>
+      ) : (
+        <div>
+          <button
+            className="bg-green-500 p-4"
+            onClick={() => triggerTransaction}
+          >
+            Send Transaction
+          </button>
+        </div>
+      )}
     </>
   );
 };
