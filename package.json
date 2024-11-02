@@ -6,7 +6,6 @@
     "abi": "rm abi/ContractAbi.json && cd contracts && forge inspect Contract abi >> ../abi/ContractAbi.json",
     "predev": "pnpm run abi",
     "dev": "next dev",
-    "prebuild": "pnpm run abi",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
