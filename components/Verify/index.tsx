@@ -4,15 +4,12 @@ import {
   ResponseEvent,
   VerificationLevel,
   MiniAppVerifyActionPayload,
-  ISuccessResult,
   MiniAppVerifyActionSuccessPayload,
   MiniAppSendTransactionPayload,
 } from "@worldcoin/minikit-js";
 import { useEffect, useState } from "react";
 import abi from "../../abi/ContractAbi.json";
-import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
-import { Abi, createPublicClient, http, hexToBigInt, parseAbiParameters, decodeAbiParameters } from "viem";
-import { worldchain } from "viem/chains";
+import { parseAbiParameters, decodeAbiParameters } from "viem";
 
 export type VerifyCommandInput = {
   action: string;
@@ -24,49 +21,14 @@ const triggerVerify = (data: VerifyCommandInput) => {
   MiniKit.commands.verify(data);
 };
 
-const triggerTransaction = async (
+const triggerTransaction = (
   response: MiniAppVerifyActionSuccessPayload
 ) => {
-  console.log(
-    "debug: ",
-    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-    MiniKit.user?.walletAddress,
-    response,
-    abi
-  );
-  await MiniKit.commandsAsync.sendTransaction({
+  MiniKit.commands.sendTransaction({
     transaction: [
       {
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
         abi: abi,
-        // abi:   [{
-        //   "type": "function",
-        //   "name": "verifyAndExecute",
-        //   "inputs": [
-        //     {
-        //       "name": "signal",
-        //       "type": "address",
-        //       "internalType": "address"
-        //     },
-        //     {
-        //       "name": "root",
-        //       "type": "uint256",
-        //       "internalType": "uint256"
-        //     },
-        //     {
-        //       "name": "nullifierHash",
-        //       "type": "uint256",
-        //       "internalType": "uint256"
-        //     },
-        //     {
-        //       "name": "proof",
-        //       "type": "uint256[8]",
-        //       "internalType": "uint256[8]"
-        //     }
-        //   ],
-        //   "outputs": [],
-        //   "stateMutability": "nonpayable"
-        // }],
         functionName: "verifyAndExecute",
         args: [
           MiniKit.user?.walletAddress,
@@ -80,14 +42,7 @@ const triggerTransaction = async (
       },
     ],
   });
-
-  console.log("transaction sent");
 };
-
-const client = createPublicClient({
-  chain: worldchain,
-  transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
-});
 
 export const VerifyBlock = () => {
   const [worldIdProof, setWorldIdProof] =
@@ -112,7 +67,6 @@ export const VerifyBlock = () => {
         if (response.status === "error") {
           return console.log("Error payload", response);
         }
-
         setWorldIdProof(response);
       }
     );
@@ -127,10 +81,6 @@ export const VerifyBlock = () => {
       return;
     }
 
-    // triggerTransaction(worldIdProof);
-
-    console.log("world id proof useEffectdebug: ", worldIdProof);
-
     MiniKit.subscribe(
       ResponseEvent.MiniAppSendTransaction,
       async (payload: MiniAppSendTransactionPayload) => {
@@ -142,8 +92,6 @@ export const VerifyBlock = () => {
         }
       }
     );
-
-    console.log("subscribed to send transaction");
 
     return () => {
       MiniKit.unsubscribe(ResponseEvent.MiniAppSendTransaction);
