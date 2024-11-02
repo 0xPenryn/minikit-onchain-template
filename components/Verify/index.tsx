@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import abi from "../../abi/ContractAbi.json";
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
-import { Abi, createPublicClient, http, hexToBigInt } from "viem";
+import { Abi, createPublicClient, http, hexToBigInt, parseAbiParameters, decodeAbiParameters } from "viem";
 import { worldchain } from "viem/chains";
 
 export type VerifyCommandInput = {
@@ -78,16 +78,10 @@ const triggerTransaction = async (
           MiniKit.user?.walletAddress,
           response.merkle_root,
           response.nullifier_hash,
-          [
-            "0x" + response.proof.slice(2, 66) as `0x${string}`,
-            "0x" + response.proof.slice(66, 130) as `0x${string}`,
-            "0x" + response.proof.slice(130, 194) as `0x${string}`,
-            "0x" + response.proof.slice(194, 258) as `0x${string}`,
-            "0x" + response.proof.slice(258, 322) as `0x${string}`,
-            "0x" + response.proof.slice(322, 386) as `0x${string}`,
-            "0x" + response.proof.slice(386, 450) as `0x${string}`,
-            "0x" + response.proof.slice(450, 514) as `0x${string}`,
-          ],
+          decodeAbiParameters(
+						parseAbiParameters('uint256[8]'),
+						response.proof as `0x${string}`
+					)[0],
         ],
       },
     ],
