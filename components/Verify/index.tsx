@@ -20,14 +20,8 @@ export type VerifyCommandInput = {
   verification_level?: VerificationLevel; // Default: Orb
 };
 
-const verifyPayload: VerifyCommandInput = {
-  action: process.env.NEXT_PUBLIC_ACTION_ID as string,
-  signal: MiniKit.user?.walletAddress as string,
-  verification_level: VerificationLevel.Orb,
-};
-
-const triggerVerify = () => {
-  MiniKit.commands.verify(verifyPayload);
+const triggerVerify = (data: VerifyCommandInput) => {
+  MiniKit.commands.verify(data);
 };
 
 const triggerTransaction = async (
@@ -99,11 +93,18 @@ export const VerifyBlock = () => {
   const [worldIdProof, setWorldIdProof] =
     useState<MiniAppVerifyActionSuccessPayload | null>(null);
   const [transactionId, setTransactionId] = useState<string>("");
+  const [verifyPayload, setVerifyPayload] = useState<VerifyCommandInput | null>(null);
 
   useEffect(() => {
     if (!MiniKit.isInstalled()) {
       return;
     }
+
+    setVerifyPayload({
+      action: process.env.NEXT_PUBLIC_ACTION_ID as string,
+      signal: MiniKit.user?.walletAddress as string,
+      verification_level: VerificationLevel.Orb,
+    });
 
     MiniKit.subscribe(
       ResponseEvent.MiniAppVerifyAction,
@@ -153,7 +154,7 @@ export const VerifyBlock = () => {
     <>
       {!worldIdProof ? (
         <div>
-          <button className="bg-green-500 p-4" onClick={triggerVerify}>
+          <button className="bg-green-500 p-4" onClick={() => triggerVerify(verifyPayload!)}>
             Verify
           </button>
         </div>
