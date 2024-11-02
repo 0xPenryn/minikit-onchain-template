@@ -44,41 +44,50 @@ const triggerTransaction = async (
     transaction: [
       {
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
-        // abi: abi,
-        abi:   [{
-          "type": "function",
-          "name": "verifyAndExecute",
-          "inputs": [
-            {
-              "name": "signal",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "root",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "nullifierHash",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "proof",
-              "type": "uint256[8]",
-              "internalType": "uint256[8]"
-            }
-          ],
-          "outputs": [],
-          "stateMutability": "nonpayable"
-        }],
+        abi: abi,
+        // abi:   [{
+        //   "type": "function",
+        //   "name": "verifyAndExecute",
+        //   "inputs": [
+        //     {
+        //       "name": "signal",
+        //       "type": "address",
+        //       "internalType": "address"
+        //     },
+        //     {
+        //       "name": "root",
+        //       "type": "uint256",
+        //       "internalType": "uint256"
+        //     },
+        //     {
+        //       "name": "nullifierHash",
+        //       "type": "uint256",
+        //       "internalType": "uint256"
+        //     },
+        //     {
+        //       "name": "proof",
+        //       "type": "uint256[8]",
+        //       "internalType": "uint256[8]"
+        //     }
+        //   ],
+        //   "outputs": [],
+        //   "stateMutability": "nonpayable"
+        // }],
         functionName: "verifyAndExecute",
         args: [
           MiniKit.user?.walletAddress,
           response.merkle_root,
           response.nullifier_hash,
-          response.proof,
+          [
+            BigInt(response.proof.slice(0, 64)),
+            BigInt(response.proof.slice(64, 128)),
+            BigInt(response.proof.slice(128, 192)), 
+            BigInt(response.proof.slice(192, 256)),
+            BigInt(response.proof.slice(256, 320)),
+            BigInt(response.proof.slice(320, 384)),
+            BigInt(response.proof.slice(384, 448)),
+            BigInt(response.proof.slice(448, 512))
+          ],
         ],
       },
     ],
