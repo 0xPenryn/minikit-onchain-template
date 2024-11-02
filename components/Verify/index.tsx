@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import abi from "../../abi/ContractAbi.json";
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
-import { createPublicClient, http } from "viem";
+import { Abi, createPublicClient, http } from "viem";
 import { worldchain } from "viem/chains";
 
 export type VerifyCommandInput = {
@@ -37,13 +37,42 @@ const triggerTransaction = async (
     "debug: ",
     process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
     MiniKit.user?.walletAddress,
-    response
+    response,
+    abi
   );
   await MiniKit.commandsAsync.sendTransaction({
     transaction: [
       {
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
-        abi: abi,
+        // abi: abi,
+        abi:   [{
+          "type": "function",
+          "name": "verifyAndExecute",
+          "inputs": [
+            {
+              "name": "signal",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "root",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "nullifierHash",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "proof",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            }
+          ],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+        }],
         functionName: "verifyAndExecute",
         args: [
           MiniKit.user?.walletAddress,
